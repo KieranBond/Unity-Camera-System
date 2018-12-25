@@ -38,6 +38,8 @@ namespace CameraDesign.Controller.Impl
         private Vector2 m_screenResolution;
         private Camera m_camera;
 
+        private TargetFollower m_targetFollower;
+
         private List<GameObject> m_displayLineObjs;
 
         // Start is called before the first frame update
@@ -45,6 +47,13 @@ namespace CameraDesign.Controller.Impl
         {
             m_displayLineObjs = new List<GameObject>();
             m_camera = GetComponent<Camera>();
+
+            //Setup the target follower.
+            m_targetFollower = GetComponent<TargetFollower>();
+            if(m_targetFollower == null)
+                m_targetFollower = gameObject.AddComponent<TargetFollower>();
+
+            m_targetFollower.Initialise(m_cameraTarget);
 
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 
@@ -97,6 +106,8 @@ namespace CameraDesign.Controller.Impl
             Vector3 yPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_actualFocusY - m_heightHalved, m_camera.nearClipPlane));
             Vector3 yPoint3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY + m_heightHalved, m_camera.nearClipPlane));
             Vector3 yPoint4 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_actualFocusY + m_heightHalved, m_camera.nearClipPlane));
+
+            m_targetFollower.TrackingUpdate(new Rect(m_actualFocusX, m_actualFocusY, m_actualFocusWidth, m_actualFocusHeight));
 
             #region Debug Lines
 
