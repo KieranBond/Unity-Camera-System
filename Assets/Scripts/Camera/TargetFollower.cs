@@ -7,14 +7,21 @@ namespace CameraDesign.Controller.Impl
         private Transform m_target;
         private Rect m_focusBounds;
 
+        private bool m_debug = false;
+
         public void Initialise( Transform a_target )
         {
             m_target = a_target;
+
+#if UNITY_EDITOR
+            m_debug = true;
+#endif
         }
 
         // Bounds are given in World Position.
         public void TrackingUpdate( Rect a_focusBounds )
         {
+            //Update our bounds.
             m_focusBounds = a_focusBounds;
 
             //Start tracking.
@@ -25,32 +32,33 @@ namespace CameraDesign.Controller.Impl
             OutOfBounds yBounds = OutOfBounds.In;
 
 
-            //Halving these because we always check from the center. 
+            //Halving these because we always check from the center when checking against bounds. 
             float width = m_focusBounds.width * 0.5f;
             float height = m_focusBounds.height * 0.5f;
 
-            if (targetPos.x > m_focusBounds.x + width)
+            xBounds = CheckBounds(targetPos.x, m_focusBounds.x, width);
+            yBounds = CheckBounds(targetPos.y, m_focusBounds.y, height);
+
+            #region DebugLogging
+
+            if (m_debug)
             {
-                //Out of right xBounds.
-                xBounds = OutOfBounds.OutPos;
-            }
-            else if (targetPos.x < m_focusBounds.x - width)
-            {
-                //Out of left xBounds.
-                xBounds = OutOfBounds.OutNeg;
+                Debug.Log("xBounds: " + xBounds);
+                Debug.Log("yBounds: " + yBounds);
             }
 
-            if (targetPos.y > m_focusBounds.y + height)
-            {
-                //Out of top bounds
-                yBounds = OutOfBounds.OutPos;
-            }
-            else if (targetPos.y < m_focusBounds.y - height)
-            {
-                //Out of bottom bounds
-                yBounds = OutOfBounds.OutNeg;
-            }
+            #endregion
 
+        }
+
+        private OutOfBounds CheckBounds(float a_position, float a_boundsCenter, float a_boundsMod)
+        {
+            if (a_position > a_boundsCenter + a_boundsMod)
+                return OutOfBounds.OutPos;
+            else if (a_position < a_boundsCenter - a_boundsMod)
+                return OutOfBounds.OutNeg;
+            else
+                return OutOfBounds.In;
         }
 
 

@@ -2742,8 +2742,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_cameraTarget: {fileID: 83277801}
-  m_focusWidth: 25
+  m_showDebug: 1
+  m_focusWidth: 15
   m_actualFocusWidth: 0
+  m_focusHeight: 15
+  m_actualFocusHeight: 0
   m_focusXCentre: 50
   m_actualFocusX: 0
   m_focusYCentre: 50
