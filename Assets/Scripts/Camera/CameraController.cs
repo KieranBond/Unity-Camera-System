@@ -50,14 +50,14 @@ namespace CameraDesign.Controller.Impl
 
             //Setup the target follower.
             m_targetFollower = GetComponent<TargetFollower>();
-            if(m_targetFollower == null)
+            if (m_targetFollower == null)
                 m_targetFollower = gameObject.AddComponent<TargetFollower>();
 
-            m_targetFollower.Initialise(m_cameraTarget);
+            m_targetFollower.Initialise(m_cameraTarget, m_showDebug);
 
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 
-            m_actualFocusX = m_camera.pixelWidth * (1 - ((100 - m_focusXCentre) - (m_focusWidth*0.5f)) * 0.01f);
+            m_actualFocusX = m_camera.pixelWidth * (1 - ((100 - m_focusXCentre) - (m_focusWidth * 0.5f)) * 0.01f);
             //m_actualFocusX = m_camera.pixelWidth * (1 - (100 - (m_focusXCentre - (m_focusWidth*0.5f)) * 0.01f));
             m_actualFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
 
@@ -113,6 +113,8 @@ namespace CameraDesign.Controller.Impl
 
             if (m_showDebug)
             {
+                //m_targetFollower.m_showDebug = m_showDebug;
+
                 //Clear debug lines
                 foreach (GameObject go in m_displayLineObjs)
                     Destroy(go);
@@ -152,6 +154,18 @@ namespace CameraDesign.Controller.Impl
                 m_displayLineObjs.Add(line2);
                 m_displayLineObjs.Add(line3);
                 m_displayLineObjs.Add(line4);
+            }
+            else
+            {
+                //Clear any remaining debug.
+
+                if (m_displayLineObjs.Count > 0)
+                {
+                    foreach (GameObject go in m_displayLineObjs)
+                        Destroy(go);
+
+                    m_displayLineObjs.Clear();
+                }
             }
 
             #endregion

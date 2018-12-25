@@ -7,15 +7,12 @@ namespace CameraDesign.Controller.Impl
         private Transform m_target;
         private Rect m_focusBounds;
 
-        private bool m_debug = false;
+        public bool m_showDebug = false;
 
-        public void Initialise( Transform a_target )
+        public void Initialise( Transform a_target, bool a_showDebug = false )
         {
             m_target = a_target;
-
-#if UNITY_EDITOR
-            m_debug = true;
-#endif
+            m_showDebug = a_showDebug;
         }
 
         // Bounds are given in World Position.
@@ -41,7 +38,7 @@ namespace CameraDesign.Controller.Impl
 
             #region DebugLogging
 
-            if (m_debug)
+            if (m_showDebug)
             {
                 Debug.Log("xBounds: " + xBounds);
                 Debug.Log("yBounds: " + yBounds);
