@@ -58,25 +58,9 @@ namespace CameraDesign.Controller.Impl
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 
             m_actualFocusX = m_camera.pixelWidth * (1 - ((100 - m_focusXCentre) - (m_focusWidth * 0.5f)) * 0.01f);
-            //m_actualFocusX = m_camera.pixelWidth * (1 - (100 - (m_focusXCentre - (m_focusWidth*0.5f)) * 0.01f));
             m_actualFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
 
             m_actualFocusY = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
-
-
-            //Vector3 point = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, 0f, m_camera.nearClipPlane));
-            //Vector3 point2 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, m_camera.pixelHeight, m_camera.nearClipPlane));
-
-            //Vector3 point = new Vector3();
-            //Event currentEvent = Event.current;
-            //Vector2 lineTopX = new Vector2();
-            //Vector2 lineBotX = new Vector2();
-
-            //// Get the mouse position from Event.
-            //// Note that the y position from Event is inverted.
-            //lineTopX.x = currentEvent.mousePosition.x;
-            //lineBotX.y = cam.pixelHeight - currentEvent.mousePosition.y;
-
         }
 
 
@@ -94,9 +78,6 @@ namespace CameraDesign.Controller.Impl
             m_actualFocusX = m_camera.pixelWidth * (1 - (100 - m_focusXCentre) * 0.01f);
             m_actualFocusY = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
 
-            Vector3 newPos = new Vector3(m_cameraTarget.position.x, m_cameraTarget.position.y, m_camera.transform.position.z);
-            m_camera.transform.position = newPos;
-
             Vector3 xPoint1 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - m_widthHalved, 0f, m_camera.nearClipPlane));
             Vector3 xPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - m_widthHalved, m_camera.pixelHeight, m_camera.nearClipPlane));
             Vector3 xPoint3 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + m_widthHalved, 0f, m_camera.nearClipPlane));
@@ -107,7 +88,9 @@ namespace CameraDesign.Controller.Impl
             Vector3 yPoint3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY + m_heightHalved, m_camera.nearClipPlane));
             Vector3 yPoint4 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_actualFocusY + m_heightHalved, m_camera.nearClipPlane));
 
-            m_targetFollower.TrackingUpdate(new Rect(m_actualFocusX, m_actualFocusY, m_actualFocusWidth, m_actualFocusHeight));
+            float m_focusXCentreWP = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, 0f, 0f)).x;
+            float m_focusYCentreWP = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY, 0f)).y;
+            m_targetFollower.TrackingUpdate(new Rect(m_focusXCentreWP, m_focusYCentreWP, xPoint3.x - xPoint1.x, yPoint3.y - yPoint1.y));
 
             #region Debug Lines
 
