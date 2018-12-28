@@ -53,7 +53,7 @@ namespace CameraDesign.Controller.Impl
             if (m_targetFollower == null)
                 m_targetFollower = gameObject.AddComponent<TargetFollower>();
 
-            m_targetFollower.Initialise(m_cameraTarget, m_showDebug);
+            m_targetFollower.Initialise(m_cameraTarget, m_camera.transform, m_showDebug);
 
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 
