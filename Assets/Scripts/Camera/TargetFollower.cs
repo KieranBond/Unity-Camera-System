@@ -12,7 +12,8 @@ namespace CameraDesign.Controller.Impl
 
         public bool m_showDebug = false;
 
-        private Tween m_movementTween;
+        private Tween m_movementXTween;
+        private Tween m_movementYTween;
 
         public void Initialise( Transform a_target, Transform a_camera, bool a_showDebug = false )
         {
@@ -42,14 +43,26 @@ namespace CameraDesign.Controller.Impl
             xBounds = CheckBounds(targetPos.x, m_focusBounds.x, width);
             yBounds = CheckBounds(targetPos.y, m_focusBounds.y, height);
 
-            if(xBounds == OutOfBounds.OutPos || xBounds == OutOfBounds.OutNeg)
+            Vector2 m_distance = new Vector2();
+
+            if (xBounds == OutOfBounds.OutPos)
             {
-                BringToFocusX();
+                m_distance.x = GetDistanceFromBounds(m_target.position.x, m_focusBounds.x + width);
             }
-            if (yBounds == OutOfBounds.OutPos || yBounds == OutOfBounds.OutNeg)
+            else if (xBounds == OutOfBounds.OutNeg)
+            {
+                m_distance.x = GetDistanceFromBounds(m_target.position.x, m_focusBounds.x - width);
+            }
+            if (yBounds == OutOfBounds.OutPos)
             {
 
             }
+            else if (yBounds == OutOfBounds.OutNeg)
+            {
+
+            }
+
+            BringToFocus(m_distance);
 
             #region DebugLogging
 
@@ -67,26 +80,24 @@ namespace CameraDesign.Controller.Impl
 
         }
 
-        private void BringToFocusX()
+        private void BringToFocus( Vector2 a_distance)
         {
             float width = m_focusBounds.width * 0.5f;
             float height = m_focusBounds.height * 0.5f;
-            float distance = 0f;
-            if(CheckBounds(m_target.position.x, m_focusBounds.x, width) == OutOfBounds.OutPos)
+
+            if (m_showDebug)
             {
-                distance = GetDistanceToBounds(m_target.position.x, m_focusBounds.x + width);
-            }
-            else
-            {
-                distance = GetDistanceToBounds(m_target.position.x, m_focusBounds.x - width);
+                Debug.Log("Distance: " + a_distance);
             }
 
-            Debug.Log("Distanc X: " + distance);
+            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, 5f).OnComplete(() => m_movementXTween = null);
+            m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, 5f).OnComplete(() => m_movementYTween = null);
 
-            m_movementTween = m_camera.DOMoveX(m_camera.position.x + distance, 2f).OnComplete(() => m_movementTween = null);
+            //m_movementTween = m_camera.DOMoveX(m_camera.position + new Vector3(a_distance.x, a_distance.y, 0f), 5f).OnComplete(() => m_movementTween = null);
+            
         }
 
-        private float GetDistanceToBounds(float a_position, float a_boundsEnd)
+        private float GetDistanceFromBounds(float a_position, float a_boundsEnd)
         {
             return a_position - a_boundsEnd;
 
