@@ -85,7 +85,6 @@ namespace CameraDesign.Controller.Impl
         }
 
 
-
         // Update is called once per frame
         void Update()
         {
@@ -112,80 +111,63 @@ namespace CameraDesign.Controller.Impl
 
             float m_focusXCentreWP = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, 0f, 0f)).x;
             float m_focusYCentreWP = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY, 0f)).y;
-            m_targetFollower.TrackingUpdate(new Rect(m_focusXCentreWP, m_focusYCentreWP, xPoint3.x - xPoint1.x, yPoint3.y - yPoint1.y));
 
-            #region Debug Lines
+            Rect focusBounds = new Rect(m_focusXCentreWP, m_focusYCentreWP, xPoint3.x - xPoint1.x, yPoint3.y - yPoint1.y);
 
-            if (m_showDebug)
-            {
-                GameObject debugParent = new GameObject("DebugParent");
-                //Clear debug lines
-                foreach (GameObject go in m_displayLineObjs)
-                    Destroy(go);
+            //Distance between centre of Focus zone and centre of target.
+            float focusOffset = Vector3.Distance(m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, 0f, m_camera.nearClipPlane)), m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth * 0.5f, 0f, m_camera.nearClipPlane)));
+            float targetYRot = m_cameraTarget.rotation.eulerAngles.y;
 
-                m_displayLineObjs.Clear();
-                //Draw lines on camera
+            //if (targetYRot % 180 == 0)
+            //{
+            //    //It's facing left. Move our offset to the other side.
+            //
+            //    focusBounds.center = new Vector2(focusBounds.center.x - focusOffset, focusBounds.center.y);
+            //}
 
-                Vector3 centerPoint1 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth*0.5f, 0f, m_camera.nearClipPlane));
-                Vector3 centerPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth*0.5f, m_camera.pixelHeight, m_camera.nearClipPlane));
-
-                GameObject centralLine = new GameObject("CentralLine");
-                centralLine.transform.SetParent(debugParent.transform);
-                LineRenderer centralLineR = centralLine.AddComponent<LineRenderer>();
-                centralLineR.sortingOrder = 100;
-                centralLineR.material = m_debugLineMaterial;
-                centralLineR.useWorldSpace = true;
-                centralLineR.startColor = Color.red;
-                centralLineR.endColor = Color.red;
-                centralLineR.startWidth = 0.05f;
-                centralLineR.endWidth = 0.05f;
-                centralLineR.SetPositions(new Vector3[] { centerPoint1, centerPoint2 });
-
-                GameObject debugLine = Instantiate(centralLine);
-                debugLine.name = "DebugLine";
-                debugLine.transform.SetParent(debugParent.transform);
-                LineRenderer lineR = debugLine.GetComponent<LineRenderer>();
-                lineR.sortingOrder = 99;
-                lineR.SetPositions(new Vector3[] { xPoint1, xPoint2 });
-                lineR.startColor = Color.green;
-                lineR.endColor = Color.green;
-
-
-                GameObject debugLine2 = Instantiate(debugLine);
-                debugLine2.transform.SetParent(debugParent.transform);
-                LineRenderer line2R = debugLine2.GetComponent<LineRenderer>();
-                line2R.SetPositions(new Vector3[] { xPoint3, xPoint4 });
-
-                GameObject debugLine3 = Instantiate(debugLine);
-                debugLine3.transform.SetParent(debugParent.transform);
-                LineRenderer line3R = debugLine3.GetComponent<LineRenderer>();
-                line3R.SetPositions(new Vector3[] { yPoint1, yPoint2 });
-
-                GameObject debugLine4 = Instantiate(debugLine);
-                debugLine4.transform.SetParent(debugParent.transform);
-                LineRenderer line4R = debugLine4.GetComponent<LineRenderer>();
-                line4R.SetPositions(new Vector3[] { yPoint3, yPoint4 });
-
-
-                m_displayLineObjs.AddRange(new GameObject[] { debugParent, centralLine, debugLine, debugLine2, debugLine3, debugLine4 });
-            }
-            else
-            {
-                //Clear any remaining debug.
-
-                if (m_displayLineObjs.Count > 0)
-                {
-                    foreach (GameObject go in m_displayLineObjs)
-                        Destroy(go);
-
-                    m_displayLineObjs.Clear();
-                }
-            }
-
-            #endregion
+            m_targetFollower.TrackingUpdate(focusOffset, focusBounds);
 
         }
 
+        private void OnDrawGizmos()
+        {
+            if (!m_showDebug)
+                return;
 
+            if (m_camera == null)
+                return;
+
+            float widthHalved = m_actualFocusWidth * 0.5f;
+            float heightHalved = m_actualFocusHeight * 0.5f;
+            float pixelWidth = m_camera.pixelWidth;
+            float pixelHeight = m_camera.pixelHeight;
+
+            //Centre line.
+            Gizmos.color = Color.red;
+            Vector3 centerPoint1 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, 0f, m_camera.nearClipPlane));
+            Vector3 centerPoint2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, pixelHeight, m_camera.nearClipPlane));
+            Gizmos.DrawLine(centerPoint1, centerPoint2);
+
+            Gizmos.color = Color.green;
+            //Left most line of focus zone.
+            Vector3 x1 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - widthHalved, 0f, m_camera.nearClipPlane));
+            Vector3 x2 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - widthHalved, pixelHeight, m_camera.nearClipPlane));
+            Gizmos.DrawLine(x1, x2);
+
+            //Right most line of focus zone.
+            Vector3 x3 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + widthHalved, 0f, m_camera.nearClipPlane));
+            Vector3 x4 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + widthHalved, pixelHeight, m_camera.nearClipPlane));
+            Gizmos.DrawLine(x3, x4);
+
+            //Bottom line of focus zone.
+            Vector3 y1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY - heightHalved, m_camera.nearClipPlane));
+            Vector3 y2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_actualFocusY - heightHalved, m_camera.nearClipPlane));
+            Gizmos.DrawLine(y1, y2);
+            
+            //Top line of focus zone.
+            Vector3 y3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY + heightHalved, m_camera.nearClipPlane));
+            Vector3 y4 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_actualFocusY + heightHalved, m_camera.nearClipPlane));
+            Gizmos.DrawLine(y3, y4);
+        }
     }
 }
