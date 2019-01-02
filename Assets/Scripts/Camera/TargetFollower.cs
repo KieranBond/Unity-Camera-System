@@ -7,7 +7,8 @@ namespace CameraDesign.Controller.Impl
     public class TargetFollower : MonoBehaviour
     {
         private Transform m_camera;
-        private Transform m_target;
+        private ICameraTarget m_target;
+        private Transform m_targetTransform;
         private Rect m_focusBounds;
 
         public bool m_showDebug = false;
@@ -15,9 +16,10 @@ namespace CameraDesign.Controller.Impl
         private Tween m_movementXTween;
         private Tween m_movementYTween;
 
-        public void Initialise( Transform a_target, Transform a_camera, bool a_showDebug = false )
+        public void Initialise( ICameraTarget a_target, Transform a_camera, bool a_showDebug = false )
         {
             m_target = a_target;
+            m_targetTransform = a_target.m_transform;
             m_camera = a_camera;
             m_showDebug = a_showDebug;
         }
@@ -29,7 +31,7 @@ namespace CameraDesign.Controller.Impl
             m_focusBounds = a_focusBounds;
 
            // Vector3 targetPos = m_target.TransformPoint(m_target.position);
-            Vector3 targetPos = m_target.position;
+            Vector3 targetPos = m_targetTransform.position;
 
             //Check that the target is within bounds.
             OutOfBounds xBounds = OutOfBounds.In;
@@ -47,11 +49,11 @@ namespace CameraDesign.Controller.Impl
 
             if (xBounds == OutOfBounds.OutPos)
             {
-                m_distance.x = GetDistanceFromBounds(m_target.position.x, m_focusBounds.x + width);
+                m_distance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x + width);
             }
             else if (xBounds == OutOfBounds.OutNeg)
             {
-                m_distance.x = GetDistanceFromBounds(m_target.position.x, m_focusBounds.x - width);
+                m_distance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x - width);
             }
             if (yBounds == OutOfBounds.OutPos)
             {

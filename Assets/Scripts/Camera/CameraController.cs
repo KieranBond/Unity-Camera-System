@@ -8,7 +8,9 @@ namespace CameraDesign.Controller.Impl
     {
         [Header("Settings")]
         [SerializeField]
+        [Tooltip("Transform of follow target. Requires ICameraTarget interface on the GameObject.")]
         private Transform m_cameraTarget;
+        private ICameraTarget cameraTarget;//This will be gotten from m_cameraTarget. It's needed, so make sure it has a script with this interface.
 
         [SerializeField]
         private bool m_showDebug = true;
@@ -48,12 +50,21 @@ namespace CameraDesign.Controller.Impl
             m_displayLineObjs = new List<GameObject>();
             m_camera = GetComponent<Camera>();
 
-            //Setup the target follower.
-            m_targetFollower = GetComponent<TargetFollower>();
-            if (m_targetFollower == null)
-                m_targetFollower = gameObject.AddComponent<TargetFollower>();
+            //Ensures it's not able to do anything until ICameraTarget is on the object.
+            cameraTarget = m_cameraTarget.GetComponent<ICameraTarget>();
+            if (cameraTarget == null)
+            {
+                m_cameraTarget = null;
+            }
+            else
+            {
+                //Setup the target follower.
+                m_targetFollower = GetComponent<TargetFollower>();
+                if (m_targetFollower == null)
+                    m_targetFollower = gameObject.AddComponent<TargetFollower>();
 
-            m_targetFollower.Initialise(m_cameraTarget, m_camera.transform, m_showDebug);
+                m_targetFollower.Initialise(cameraTarget, m_camera.transform, m_showDebug);
+            }
 
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 

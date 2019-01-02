@@ -4,7 +4,7 @@ namespace CameraDesign.Player
 {
     [RequireComponent(typeof(Animator))]
     [RequireComponent(typeof(Rigidbody2D))]
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, ICameraTarget
     {
         //Movement
         [SerializeField]
@@ -21,6 +21,10 @@ namespace CameraDesign.Player
         //Other bits
         private Rigidbody2D m_rb;
         private Animator m_animator;
+
+        //ICameraTarget Variables.
+        public Transform m_transform { get => transform; }
+        bool ICameraTarget.m_isGrounded { get => this.m_isGrounded; }
 
         // Start is called before the first frame update
         void Start()
