@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
-
-public interface ICameraTarget
+namespace CameraDesign.Controller.API
 {
-    Transform m_transform { get; }
+    public interface ICameraTarget
+    {
+        Transform m_transform { get; }
 
-    bool m_isGrounded { get; }
+        bool m_isGrounded { get; }
+    }
 }

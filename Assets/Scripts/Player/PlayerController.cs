@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using CameraDesign.Controller.API;
+using UnityEngine;
 
 namespace CameraDesign.Player
 {

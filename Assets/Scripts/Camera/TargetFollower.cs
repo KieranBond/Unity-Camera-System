@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using CameraDesign.Controller.API;
+using DG.Tweening;
 using System;
 using UnityEngine;
 
@@ -13,18 +14,34 @@ namespace CameraDesign.Controller.Impl
 
         public bool m_showDebug = false;
 
+        private float m_focusMovementSpeed;
+
         private Tween m_movementXTween;
         private Tween m_movementYTween;
 
-        public void Initialise( ICameraTarget a_target, Transform a_camera, bool a_showDebug = false )
+        public void Initialise( ICameraTarget a_target, Transform a_camera, bool a_showDebug = false, float a_focusMovementSpeed = 5f )
         {
             m_target = a_target;
             m_targetTransform = a_target.m_transform;
             m_camera = a_camera;
             m_showDebug = a_showDebug;
+            m_focusMovementSpeed = a_focusMovementSpeed;
         }
 
-        // Bounds are given in World Position.
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a_focusMovementSpeed"></param>
+        public void SettingsUpdate( float a_focusMovementSpeed = 5f)
+        {
+            m_focusMovementSpeed = a_focusMovementSpeed;
+        }
+
+        /// <summary>
+        ///This update should be called every frame, every time the target moves, 
+        ///or every time we've finished moving to the target for best results.
+        /// </summary>
+        /// <param name="a_focusBounds">Bounds should be given in world position.</param>
         public void TrackingUpdate( Rect a_focusBounds )
         {
             //Update our bounds.
@@ -57,11 +74,11 @@ namespace CameraDesign.Controller.Impl
             }
             if (yBounds == OutOfBounds.OutPos)
             {
-
+                m_distance.y = GetDistanceFromBounds(m_targetTransform.position.y, m_focusBounds.y + height);
             }
             else if (yBounds == OutOfBounds.OutNeg)
             {
-
+                m_distance.y = GetDistanceFromBounds(m_targetTransform.position.y, m_focusBounds.y - height);
             }
 
             BringToFocus(m_distance);
@@ -92,8 +109,8 @@ namespace CameraDesign.Controller.Impl
                 Debug.Log("Distance: " + a_distance);
             }
 
-            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, 5f).OnComplete(() => m_movementXTween = null);
-            m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, 5f).OnComplete(() => m_movementYTween = null);
+            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
+            m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementYTween = null);
 
             //m_movementTween = m_camera.DOMoveX(m_camera.position + new Vector3(a_distance.x, a_distance.y, 0f), 5f).OnComplete(() => m_movementTween = null);
             

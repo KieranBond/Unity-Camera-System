@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using CameraDesign.Controller.API;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CameraDesign.Controller.Impl
@@ -6,10 +7,11 @@ namespace CameraDesign.Controller.Impl
     [RequireComponent(typeof(Camera))]
     public class CameraController : MonoBehaviour
     {
+        //TODO: Hide the 'actual' values. They should be private, only public for Debug.
+
         [Header("Settings")]
-        [SerializeField]
         [Tooltip("Transform of follow target. Requires ICameraTarget interface on the GameObject.")]
-        private Transform m_cameraTarget;
+        public Transform m_cameraTarget;
         private ICameraTarget cameraTarget;//This will be gotten from m_cameraTarget. It's needed, so make sure it has a script with this interface.
 
         [SerializeField]
@@ -17,9 +19,14 @@ namespace CameraDesign.Controller.Impl
 
         [Header("Focus Zone")]
         [SerializeField]
+        [Range(0.01f, float.MaxValue)]
+        private float m_focusMovementSpeed = 5f;
+
+        [SerializeField]
         [Range(0, 100)]
         private float m_focusWidth = 5f;//Percentage of screen, width of the focus zone.
         public float m_actualFocusWidth = 0f;
+
         [SerializeField]
         [Range(0, 100)]
         private float m_focusHeight = 5f;//Percentage of screen, height of the focus zone.
@@ -32,6 +39,7 @@ namespace CameraDesign.Controller.Impl
         [Range(0, 100)]
         private float m_focusXCentre = 50f;//X Centre. In perecentage. 
         public float m_actualFocusX = 0f;
+
         [SerializeField]
         [Range(0, 100)]
         private float m_focusYCentre = 50f;//Y Centre. In Percentage.
@@ -79,6 +87,7 @@ namespace CameraDesign.Controller.Impl
         // Update is called once per frame
         void Update()
         {
+            m_targetFollower.SettingsUpdate(m_focusMovementSpeed);
 
             m_actualFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
             m_actualFocusHeight = m_camera.pixelHeight * (1 - (100 - m_focusHeight) * 0.01f);
