@@ -10,6 +10,8 @@ namespace CameraDesign.Player
         //Movement
         [SerializeField]
         private float m_movementSpeed = 1f;
+        [SerializeField]
+        private float m_maxXVelocity = 2f;
 
         //Jumping
         private bool m_isGrounded = true;
@@ -24,7 +26,8 @@ namespace CameraDesign.Player
         private Animator m_animator;
 
         //ICameraTarget Variables.
-        public Transform m_transform { get => transform; }
+        Transform ICameraTarget.m_transform { get => transform; }
+        Vector2 ICameraTarget.m_velocity { get => GetComponent<Rigidbody2D>().velocity; }
         bool ICameraTarget.m_isGrounded { get => this.m_isGrounded; }
 
         // Start is called before the first frame update
@@ -39,6 +42,11 @@ namespace CameraDesign.Player
         // Update is called once per frame
         void Update()
         {
+            if(m_rb.velocity.x > m_maxXVelocity)
+            {
+                m_rb.velocity = new Vector2(m_maxXVelocity, m_rb.velocity.y);
+            }
+
             //Do Idle animation
             if(m_isGrounded && m_rb.velocity.x == 0f && m_rb.velocity.y == 0f)
             {
@@ -59,11 +67,25 @@ namespace CameraDesign.Player
             }
             if(Input.GetKey(KeyCode.D))
             {
+                SetTrigger("Run");
+
                 m_rb.AddForce(Vector2.right * m_movementSpeed);
+                Quaternion newRot = new Quaternion();
+                newRot.eulerAngles = new Vector3(transform.rotation.x, 0f, transform.rotation.z);
+                transform.rotation = newRot;
             }
             else if(Input.GetKey(KeyCode.A))
             {
+                SetTrigger("Run");
+
                 m_rb.AddForce(Vector2.left * m_movementSpeed);
+                Quaternion newRot = new Quaternion();
+                newRot.eulerAngles = new Vector3(transform.rotation.x, 180f, transform.rotation.z);
+                transform.rotation = newRot;
+            }
+            else
+            {
+                m_animator.ResetTrigger("Run");//No movement pressed.
             }
 
             //Do fall animation

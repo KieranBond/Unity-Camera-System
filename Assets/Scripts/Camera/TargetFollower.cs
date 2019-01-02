@@ -109,7 +109,13 @@ namespace CameraDesign.Controller.Impl
                 Debug.Log("Distance: " + a_distance);
             }
 
-            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
+            //Gamasutra article, they don't lerp. They snap. But they snap by the distance / 32.
+            Vector3 currentPos = m_camera.position;
+            Vector3 newPos = currentPos;
+            newPos.x = newPos.x + (a_distance.x / 32f);
+            m_camera.position = newPos;
+
+            //m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
             m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementYTween = null);
 
             //m_movementTween = m_camera.DOMoveX(m_camera.position + new Vector3(a_distance.x, a_distance.y, 0f), 5f).OnComplete(() => m_movementTween = null);

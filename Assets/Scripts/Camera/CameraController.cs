@@ -16,6 +16,8 @@ namespace CameraDesign.Controller.Impl
 
         [SerializeField]
         private bool m_showDebug = true;
+        [SerializeField]
+        private Material m_debugLineMaterial;
 
         [Header("Focus Zone")]
         [SerializeField]
@@ -116,8 +118,7 @@ namespace CameraDesign.Controller.Impl
 
             if (m_showDebug)
             {
-                //m_targetFollower.m_showDebug = m_showDebug;
-
+                GameObject debugParent = new GameObject("DebugParent");
                 //Clear debug lines
                 foreach (GameObject go in m_displayLineObjs)
                     Destroy(go);
@@ -125,38 +126,48 @@ namespace CameraDesign.Controller.Impl
                 m_displayLineObjs.Clear();
                 //Draw lines on camera
 
-                GameObject line = new GameObject("DebugLine");
-                LineRenderer lineR = line.AddComponent<LineRenderer>();
-                lineR.useWorldSpace = true;
-                lineR.startWidth = 0.1f;
-                lineR.endWidth = 0.1f;
-                lineR.SetPositions(new Vector3[] { xPoint1, xPoint2 });
+                Vector3 centerPoint1 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth*0.5f, 0f, m_camera.nearClipPlane));
+                Vector3 centerPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth*0.5f, m_camera.pixelHeight, m_camera.nearClipPlane));
 
-                GameObject line2 = new GameObject("DebugLine1");
-                LineRenderer line2R = line2.AddComponent<LineRenderer>();
-                line2R.useWorldSpace = true;
-                line2R.startWidth = 0.1f;
-                line2R.endWidth = 0.1f;
+                GameObject centralLine = new GameObject("CentralLine");
+                centralLine.transform.SetParent(debugParent.transform);
+                LineRenderer centralLineR = centralLine.AddComponent<LineRenderer>();
+                centralLineR.sortingOrder = 100;
+                centralLineR.material = m_debugLineMaterial;
+                centralLineR.useWorldSpace = true;
+                centralLineR.startColor = Color.red;
+                centralLineR.endColor = Color.red;
+                centralLineR.startWidth = 0.05f;
+                centralLineR.endWidth = 0.05f;
+                centralLineR.SetPositions(new Vector3[] { centerPoint1, centerPoint2 });
+
+                GameObject debugLine = Instantiate(centralLine);
+                debugLine.name = "DebugLine";
+                debugLine.transform.SetParent(debugParent.transform);
+                LineRenderer lineR = debugLine.GetComponent<LineRenderer>();
+                lineR.sortingOrder = 99;
+                lineR.SetPositions(new Vector3[] { xPoint1, xPoint2 });
+                lineR.startColor = Color.green;
+                lineR.endColor = Color.green;
+
+
+                GameObject debugLine2 = Instantiate(debugLine);
+                debugLine2.transform.SetParent(debugParent.transform);
+                LineRenderer line2R = debugLine2.GetComponent<LineRenderer>();
                 line2R.SetPositions(new Vector3[] { xPoint3, xPoint4 });
 
-                GameObject line3 = new GameObject("DebugLine2");
-                LineRenderer line3R = line3.AddComponent<LineRenderer>();
-                line3R.useWorldSpace = true;
-                line3R.startWidth = 0.1f;
-                line3R.endWidth = 0.1f;
+                GameObject debugLine3 = Instantiate(debugLine);
+                debugLine3.transform.SetParent(debugParent.transform);
+                LineRenderer line3R = debugLine3.GetComponent<LineRenderer>();
                 line3R.SetPositions(new Vector3[] { yPoint1, yPoint2 });
 
-                GameObject line4 = new GameObject("DebugLine3");
-                LineRenderer line4R = line4.AddComponent<LineRenderer>();
-                line4R.useWorldSpace = true;
-                line4R.startWidth = 0.1f;
-                line4R.endWidth = 0.1f;
+                GameObject debugLine4 = Instantiate(debugLine);
+                debugLine4.transform.SetParent(debugParent.transform);
+                LineRenderer line4R = debugLine4.GetComponent<LineRenderer>();
                 line4R.SetPositions(new Vector3[] { yPoint3, yPoint4 });
 
-                m_displayLineObjs.Add(line);
-                m_displayLineObjs.Add(line2);
-                m_displayLineObjs.Add(line3);
-                m_displayLineObjs.Add(line4);
+
+                m_displayLineObjs.AddRange(new GameObject[] { debugParent, centralLine, debugLine, debugLine2, debugLine3, debugLine4 });
             }
             else
             {
