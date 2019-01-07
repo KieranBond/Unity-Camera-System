@@ -13,12 +13,17 @@ namespace CameraDesign.Controller.Impl
         private Rect m_focusBounds;
         private float m_focusOffset;
 
-        public bool m_showDebug = false;
+        [SerializeField]
+        private bool m_showDebug = false;
+        [SerializeField]
+        private bool m_showAdvancedDebug = false;
 
         private float m_focusMovementSpeed;
 
         private Tween m_movementXTween;
         private Tween m_movementYTween;
+
+        private Vector2 m_previousUpdateTargetPos;
 
         public void Initialise( ICameraTarget a_target, Transform a_camera, bool a_showDebug = false, float a_focusMovementSpeed = 5f )
         {
@@ -52,16 +57,6 @@ namespace CameraDesign.Controller.Impl
             //This is our offset from the target. We use this to make sure we're this value from the Targets orientation.
             m_focusOffset = a_focusOffset;
 
-            //float targetYRot = m_targetTransform.rotation.eulerAngles.y;
-
-            //if(targetYRot % 180 == 0)
-            //{
-            //    //It's facing left. Move our offset to the other side.
-
-            //    m_focusBounds.center = new Vector2(m_focusBounds.center.x - m_focusOffset, m_focusBounds.center.y);
-            //}
-
-            // Vector3 targetPos = m_target.TransformPoint(m_target.position);
             Vector3 targetPos = m_targetTransform.position;
 
             //Check that the target is within bounds.
@@ -78,6 +73,7 @@ namespace CameraDesign.Controller.Impl
 
             Vector2 m_distance = new Vector2();
 
+            //Based on if we're positive from the bounds, we'll get the distance to the closest bound.
             if (xBounds == OutOfBounds.OutPos)
             {
                 m_distance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x + width);
@@ -97,12 +93,13 @@ namespace CameraDesign.Controller.Impl
 
             if(xBounds != OutOfBounds.In || yBounds != OutOfBounds.In)
             {
-                BringToFocus(m_distance);
+                if(m_previousUpdateTargetPos != new Vector2(targetPos.x, targetPos.y))
+                    BringToFocus(m_distance);
             }
 
             #region DebugLogging
 
-            if (m_showDebug)
+            if (m_showDebug && m_showAdvancedDebug)
             {
                 Debug.Log("TargetPosX: " + targetPos.x);
                 Debug.Log("FocusBoundsX: " + m_focusBounds.x);
@@ -118,6 +115,8 @@ namespace CameraDesign.Controller.Impl
 
         private void BringToFocus( Vector2 a_distance )
         {
+            m_previousUpdateTargetPos = m_targetTransform.position;
+
             float width = m_focusBounds.width * 0.5f;
             float height = m_focusBounds.height * 0.5f;
 
@@ -126,11 +125,7 @@ namespace CameraDesign.Controller.Impl
                 Debug.Log("Distance: " + a_distance);
             }
 
-            //Gamasutra article, they don't lerp. They snap. But they snap by the distance / 32.
-            //Vector3 currentPos = m_camera.position;
-            //Vector3 newPos = currentPos;
-            //newPos.x = currentPos.x + (a_distance.x / 256f);
-            //m_camera.position = newPos;
+            //Gamasutra article, they don't lerp. They snap. But they snap by the pixel distance / 32.
 
             m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
             m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementYTween = null);
@@ -142,19 +137,16 @@ namespace CameraDesign.Controller.Impl
         private float GetDistanceFromBounds( float a_position, float a_boundsEnd )
         {
             return a_position - a_boundsEnd;
-
-            //if (a_boundsEnd > a_position)
-            //    return a_boundsEnd - a_position;
-            //else
-            //    return a_position - a_boundsEnd;
         }
 
         private OutOfBounds CheckBounds( float a_position, float a_boundsCenter, float a_boundsMod )
         {
+            //a_position is the target's position.
+
             if (a_position > a_boundsCenter + a_boundsMod)
-                return OutOfBounds.OutNeg;
-            else if (a_position < a_boundsCenter - a_boundsMod)
                 return OutOfBounds.OutPos;
+            else if (a_position < a_boundsCenter - a_boundsMod)
+                return OutOfBounds.OutNeg;
             else
                 return OutOfBounds.In;
         }

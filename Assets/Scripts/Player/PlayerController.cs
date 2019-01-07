@@ -21,6 +21,9 @@ namespace CameraDesign.Player
         private string m_floorTag = "Floor";
         private float m_previousYPos;
 
+        [SerializeField]
+        private bool m_showDebug = false;
+
         //Other bits
         private Rigidbody2D m_rb;
         private Animator m_animator;
@@ -50,7 +53,9 @@ namespace CameraDesign.Player
             //Do Idle animation
             if(m_isGrounded && m_rb.velocity.x == 0f && m_rb.velocity.y == 0f)
             {
-                Debug.Log("Do Idle Animation");
+                if(m_showDebug)
+                    Debug.Log("Do Idle Animation");
+
                 SetTrigger("Idle");
             }
 
@@ -59,9 +64,10 @@ namespace CameraDesign.Player
                 //Do jump.
                 m_isGrounded = false;
 
-                SetTrigger("Jump");
-                Debug.Log("Do Jump begin Animation");
+                if(m_showDebug)
+                    Debug.Log("Do Jump begin Animation");
 
+                SetTrigger("Jump");
 
                 m_rb.AddForce(Vector2.up * m_jumpForce);
             }
@@ -93,7 +99,8 @@ namespace CameraDesign.Player
             {
                 if(transform.position.y != m_previousYPos)
                 { 
-                    Debug.Log("Do Jump end Animation");
+                    if(m_showDebug)
+                        Debug.Log("Do Jump end Animation");
 
                     SetTrigger("JumpEnd");
                 }
@@ -107,8 +114,10 @@ namespace CameraDesign.Player
             if(collision.gameObject.tag == m_floorTag)
             {
                 m_isGrounded = true;
-                Debug.Log("Do Landed Animation");
                 SetTrigger("JumpFinished");
+
+                if (m_showDebug)
+                    Debug.Log("Do Landed Animation");
             }
         }
 

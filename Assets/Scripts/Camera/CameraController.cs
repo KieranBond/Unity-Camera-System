@@ -27,12 +27,14 @@ namespace CameraDesign.Controller.Impl
         [SerializeField]
         [Range(0, 100)]
         private float m_focusWidth = 5f;//Percentage of screen, width of the focus zone.
-        public float m_actualFocusWidth = 0f;
+        [HideInInspector]
+        public float m_pixelsFocusWidth = 0f;
 
         [SerializeField]
         [Range(0, 100)]
         private float m_focusHeight = 5f;//Percentage of screen, height of the focus zone.
-        public float m_actualFocusHeight = 0f;
+        [HideInInspector]
+        public float m_pixelsFocusHeight = 0f;
 
         /// <summary>
         /// Percentage values. 50 = middle of screen. Range: 0 - 100.
@@ -40,12 +42,14 @@ namespace CameraDesign.Controller.Impl
         [SerializeField]
         [Range(0, 100)]
         private float m_focusXCentre = 50f;//X Centre. In perecentage. 
-        public float m_actualFocusX = 0f;
+        [HideInInspector]
+        public float m_pixelsFocusXCentre = 0f;
 
         [SerializeField]
         [Range(0, 100)]
         private float m_focusYCentre = 50f;//Y Centre. In Percentage.
-        public float m_actualFocusY = 0f;
+        [HideInInspector]
+        public float m_pixelsFocusYCentre = 0f;
 
         private Vector2 m_screenResolution;
         private Camera m_camera;
@@ -78,10 +82,10 @@ namespace CameraDesign.Controller.Impl
 
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
 
-            m_actualFocusX = m_camera.pixelWidth * (1 - ((100 - m_focusXCentre) - (m_focusWidth * 0.5f)) * 0.01f);
-            m_actualFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
+            m_pixelsFocusXCentre = m_camera.pixelWidth * (1 - ((100 - m_focusXCentre) - (m_focusWidth * 0.5f)) * 0.01f);
+            m_pixelsFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
 
-            m_actualFocusY = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
+            m_pixelsFocusYCentre = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
         }
 
 
@@ -90,32 +94,32 @@ namespace CameraDesign.Controller.Impl
         {
             m_targetFollower.SettingsUpdate(m_focusMovementSpeed);
 
-            m_actualFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
-            m_actualFocusHeight = m_camera.pixelHeight * (1 - (100 - m_focusHeight) * 0.01f);
-            float m_widthHalved = m_actualFocusWidth * 0.5f;
-            float m_heightHalved = m_actualFocusHeight * 0.5f;
+            m_pixelsFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
+            m_pixelsFocusHeight = m_camera.pixelHeight * (1 - (100 - m_focusHeight) * 0.01f);
+            float m_widthHalved = m_pixelsFocusWidth * 0.5f;
+            float m_heightHalved = m_pixelsFocusHeight * 0.5f;
 
             //Outside bracket is to normalize. FocusXCentre is percent of screen. 1 minus to get make it go left to right/top to bottom.
-            m_actualFocusX = m_camera.pixelWidth * (1 - (100 - m_focusXCentre) * 0.01f);
-            m_actualFocusY = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
+            m_pixelsFocusXCentre = m_camera.pixelWidth * (1 - (100 - m_focusXCentre) * 0.01f);
+            m_pixelsFocusYCentre = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
 
-            Vector3 xPoint1 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - m_widthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 xPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - m_widthHalved, m_camera.pixelHeight, m_camera.nearClipPlane));
-            Vector3 xPoint3 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + m_widthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 xPoint4 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + m_widthHalved, m_camera.pixelHeight, m_camera.nearClipPlane));
+            Vector3 xPoint1 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - m_widthHalved, 0f, m_camera.nearClipPlane));
+            Vector3 xPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - m_widthHalved, m_camera.pixelHeight, m_camera.nearClipPlane));
+            Vector3 xPoint3 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + m_widthHalved, 0f, m_camera.nearClipPlane));
+            Vector3 xPoint4 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + m_widthHalved, m_camera.pixelHeight, m_camera.nearClipPlane));
 
-            Vector3 yPoint1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY - m_heightHalved, m_camera.nearClipPlane));
-            Vector3 yPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_actualFocusY - m_heightHalved, m_camera.nearClipPlane));
-            Vector3 yPoint3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY + m_heightHalved, m_camera.nearClipPlane));
-            Vector3 yPoint4 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_actualFocusY + m_heightHalved, m_camera.nearClipPlane));
+            Vector3 yPoint1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre - m_heightHalved, m_camera.nearClipPlane));
+            Vector3 yPoint2 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_pixelsFocusYCentre - m_heightHalved, m_camera.nearClipPlane));
+            Vector3 yPoint3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre + m_heightHalved, m_camera.nearClipPlane));
+            Vector3 yPoint4 = m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth, m_pixelsFocusYCentre + m_heightHalved, m_camera.nearClipPlane));
 
-            float m_focusXCentreWP = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, 0f, 0f)).x;
-            float m_focusYCentreWP = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY, 0f)).y;
+            float m_focusXCentreWP = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre, 0f, 0f)).x;
+            float m_focusYCentreWP = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre, 0f)).y;
 
             Rect focusBounds = new Rect(m_focusXCentreWP, m_focusYCentreWP, xPoint3.x - xPoint1.x, yPoint3.y - yPoint1.y);
 
             //Distance between centre of Focus zone and centre of target.
-            float focusOffset = Vector3.Distance(m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX, 0f, m_camera.nearClipPlane)), m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth * 0.5f, 0f, m_camera.nearClipPlane)));
+            float focusOffset = Vector3.Distance(m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre, 0f, m_camera.nearClipPlane)), m_camera.ScreenToWorldPoint(new Vector3(m_camera.pixelWidth * 0.5f, 0f, m_camera.nearClipPlane)));
             float targetYRot = m_cameraTarget.rotation.eulerAngles.y;
 
             //if (targetYRot % 180 == 0)
@@ -137,8 +141,8 @@ namespace CameraDesign.Controller.Impl
             if (m_camera == null)
                 return;
 
-            float widthHalved = m_actualFocusWidth * 0.5f;
-            float heightHalved = m_actualFocusHeight * 0.5f;
+            float widthHalved = m_pixelsFocusWidth * 0.5f;
+            float heightHalved = m_pixelsFocusHeight * 0.5f;
             float pixelWidth = m_camera.pixelWidth;
             float pixelHeight = m_camera.pixelHeight;
 
@@ -150,23 +154,23 @@ namespace CameraDesign.Controller.Impl
 
             Gizmos.color = Color.green;
             //Left most line of focus zone.
-            Vector3 x1 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - widthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 x2 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX - widthHalved, pixelHeight, m_camera.nearClipPlane));
+            Vector3 x1 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - widthHalved, 0f, m_camera.nearClipPlane));
+            Vector3 x2 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - widthHalved, pixelHeight, m_camera.nearClipPlane));
             Gizmos.DrawLine(x1, x2);
 
             //Right most line of focus zone.
-            Vector3 x3 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + widthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 x4 = m_camera.ScreenToWorldPoint(new Vector3(m_actualFocusX + widthHalved, pixelHeight, m_camera.nearClipPlane));
+            Vector3 x3 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + widthHalved, 0f, m_camera.nearClipPlane));
+            Vector3 x4 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + widthHalved, pixelHeight, m_camera.nearClipPlane));
             Gizmos.DrawLine(x3, x4);
 
             //Bottom line of focus zone.
-            Vector3 y1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY - heightHalved, m_camera.nearClipPlane));
-            Vector3 y2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_actualFocusY - heightHalved, m_camera.nearClipPlane));
+            Vector3 y1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre - heightHalved, m_camera.nearClipPlane));
+            Vector3 y2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsFocusYCentre - heightHalved, m_camera.nearClipPlane));
             Gizmos.DrawLine(y1, y2);
             
             //Top line of focus zone.
-            Vector3 y3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_actualFocusY + heightHalved, m_camera.nearClipPlane));
-            Vector3 y4 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_actualFocusY + heightHalved, m_camera.nearClipPlane));
+            Vector3 y3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre + heightHalved, m_camera.nearClipPlane));
+            Vector3 y4 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsFocusYCentre + heightHalved, m_camera.nearClipPlane));
             Gizmos.DrawLine(y3, y4);
         }
     }
