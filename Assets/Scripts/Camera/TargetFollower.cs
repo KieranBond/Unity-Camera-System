@@ -113,8 +113,13 @@ namespace CameraDesign.Controller.Impl
 
         }
 
-        private void BringToFocus( Vector2 a_distance )
+        private void BringToFocus( Vector2 a_distance, float a_movementOverride = 0f )
         {
+            float lerpAmount = m_focusMovementSpeed;
+
+            if (a_movementOverride > 0)
+                lerpAmount = a_movementOverride;
+
             m_previousUpdateTargetPos = m_targetTransform.position;
 
             float width = m_focusBounds.width * 0.5f;
@@ -127,8 +132,8 @@ namespace CameraDesign.Controller.Impl
 
             //Gamasutra article, they don't lerp. They snap. But they snap by the pixel distance / 32.
 
-            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
-            m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementYTween = null);
+            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, lerpAmount).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
+            m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, lerpAmount).SetEase(Ease.Linear).OnComplete(() => m_movementYTween = null);
 
             //m_movementTween = m_camera.DOMoveX(m_camera.position + new Vector3(a_distance.x, a_distance.y, 0f), 5f).OnComplete(() => m_movementTween = null);
 
