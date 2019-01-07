@@ -127,12 +127,12 @@ namespace CameraDesign.Controller.Impl
             }
 
             //Gamasutra article, they don't lerp. They snap. But they snap by the distance / 32.
-            Vector3 currentPos = m_camera.position;
-            Vector3 newPos = currentPos;
-            newPos.x = newPos.x + (a_distance.x / 256f);
-            m_camera.position = newPos;
+            //Vector3 currentPos = m_camera.position;
+            //Vector3 newPos = currentPos;
+            //newPos.x = currentPos.x + (a_distance.x / 256f);
+            //m_camera.position = newPos;
 
-            //m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
+            m_movementXTween = m_camera.DOMoveX(m_camera.position.x + a_distance.x, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementXTween = null);
             m_movementYTween = m_camera.DOMoveY(m_camera.position.y + a_distance.y, m_focusMovementSpeed).SetEase(Ease.Linear).OnComplete(() => m_movementYTween = null);
 
             //m_movementTween = m_camera.DOMoveX(m_camera.position + new Vector3(a_distance.x, a_distance.y, 0f), 5f).OnComplete(() => m_movementTween = null);
@@ -143,10 +143,10 @@ namespace CameraDesign.Controller.Impl
         {
             return a_position - a_boundsEnd;
 
-            if (a_boundsEnd > a_position)
-                return a_boundsEnd - a_position;
-            else
-                return a_position - a_boundsEnd;
+            //if (a_boundsEnd > a_position)
+            //    return a_boundsEnd - a_position;
+            //else
+            //    return a_position - a_boundsEnd;
         }
 
         private OutOfBounds CheckBounds( float a_position, float a_boundsCenter, float a_boundsMod )
