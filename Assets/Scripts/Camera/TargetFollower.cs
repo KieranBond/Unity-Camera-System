@@ -11,6 +11,7 @@ namespace CameraDesign.Controller.Impl
         private ICameraTarget m_target;
         private Transform m_targetTransform;
         private Rect m_focusBounds;
+        private Rect m_dangerBounds;
         private float m_focusOffset;
 
         [SerializeField]
@@ -19,6 +20,7 @@ namespace CameraDesign.Controller.Impl
         private bool m_showAdvancedDebug = false;
 
         private float m_focusMovementSpeed;
+        private float m_dangerMovementSpeed;
 
         private Tween m_movementXTween;
         private Tween m_movementYTween;
@@ -35,12 +37,14 @@ namespace CameraDesign.Controller.Impl
         }
 
         /// <summary>
-        /// 
+        /// Update any settings, before the tracking update is called.
         /// </summary>
-        /// <param name="a_focusMovementSpeed"></param>
-        public void SettingsUpdate( float a_focusMovementSpeed = 5f )
+        /// <param name="a_focusMovementSpeed">Movement speed for chasing the target outside the focus bounds. Smaller is faster.</param>
+        /// <param name="a_dangerMovementSpeed">Movement speed for chasing the target outside the danger bounds. Smaller is faster - recommended below 1.</param>
+        public void SettingsUpdate( float a_focusMovementSpeed = 5f, float a_dangerMovementSpeed = 0.1f )
         {
             m_focusMovementSpeed = a_focusMovementSpeed;
+            m_dangerMovementSpeed = a_dangerMovementSpeed;
         }
 
         /// <summary>
@@ -49,10 +53,11 @@ namespace CameraDesign.Controller.Impl
         /// </summary>
         /// <param name="a_focusOffset">X offset from the target. Distance from centre of focus zone to centre of target.</param>
         /// <param name="a_focusBounds">Bounds should be given in world position.</param>
-        public void TrackingUpdate( float a_focusOffset, Rect a_focusBounds )
+        public void TrackingUpdate( float a_focusOffset, Rect a_focusBounds, Rect a_dangerBounds )
         {
             //Update our bounds.
             m_focusBounds = a_focusBounds;
+            m_dangerBounds = a_dangerBounds;
 
             //This is our offset from the target. We use this to make sure we're this value from the Targets orientation.
             m_focusOffset = a_focusOffset;
@@ -71,30 +76,30 @@ namespace CameraDesign.Controller.Impl
             xBounds = CheckBounds(targetPos.x, m_focusBounds.x, width);
             yBounds = CheckBounds(targetPos.y, m_focusBounds.y, height);
 
-            Vector2 m_distance = new Vector2();
+            Vector2 m_focusBoundsDistance = new Vector2();
 
             //Based on if we're positive from the bounds, we'll get the distance to the closest bound.
             if (xBounds == OutOfBounds.OutPos)
             {
-                m_distance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x + width);
+                m_focusBoundsDistance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x + width);
             }
             else if (xBounds == OutOfBounds.OutNeg)
             {
-                m_distance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x - width);
+                m_focusBoundsDistance.x = GetDistanceFromBounds(m_targetTransform.position.x, m_focusBounds.x - width);
             }
             if (yBounds == OutOfBounds.OutPos)
             {
-                m_distance.y = GetDistanceFromBounds(m_targetTransform.position.y, m_focusBounds.y + height);
+                m_focusBoundsDistance.y = GetDistanceFromBounds(m_targetTransform.position.y, m_focusBounds.y + height);
             }
             else if (yBounds == OutOfBounds.OutNeg)
             {
-                m_distance.y = GetDistanceFromBounds(m_targetTransform.position.y, m_focusBounds.y - height);
+                m_focusBoundsDistance.y = GetDistanceFromBounds(m_targetTransform.position.y, m_focusBounds.y - height);
             }
 
             if(xBounds != OutOfBounds.In || yBounds != OutOfBounds.In)
             {
                 if(m_previousUpdateTargetPos != new Vector2(targetPos.x, targetPos.y))
-                    BringToFocus(m_distance);
+                    BringToFocus(m_focusBoundsDistance);
             }
 
             #region DebugLogging

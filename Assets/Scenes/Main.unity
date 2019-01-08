@@ -6195,13 +6195,22 @@ MonoBehaviour:
   m_debugLineMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   m_focusMovementSpeed: 5
   m_focusWidth: 15
-  m_pixelsFocusWidth: 0
+  m_pixelsFocusWidth: 288.00003
   m_focusHeight: 15
-  m_pixelsFocusHeight: 0
+  m_pixelsFocusHeight: 162.00002
   m_focusXCentre: 36
-  m_pixelsFocusXCentre: 0
+  m_pixelsFocusXCentre: 691.2
   m_focusYCentre: 50
-  m_pixelsFocusYCentre: 0
+  m_pixelsFocusYCentre: 540
+  m_dangerMovementSpeed: 5
+  m_dangerWidth: 42.1
+  m_pixelsDangerWidth: 808.32
+  m_dangerHeight: 59.8
+  m_pixelsDangerHeight: 645.84
+  m_dangerXCentre: 41.4
+  m_pixelsDangerXCentre: 794.88007
+  m_dangerYCentre: 48.6
+  m_pixelsDangerYCentre: 524.88
 --- !u!1001 &553075840
 PrefabInstance:
   m_ObjectHideFlags: 0
