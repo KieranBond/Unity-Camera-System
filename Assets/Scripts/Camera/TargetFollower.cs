@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace CameraDesign.Controller.Impl
 {
-    [RequireComponent(typeof(CameraController))]
+    [RequireComponent(typeof(CameraController))]//Stops anybody randomly adding this to a class without it being able to update.
     public class TargetFollower : MonoBehaviour
     {
         private Transform m_camera;

@@ -16,6 +16,11 @@ namespace CameraDesign.Controller.Impl
         private ICameraTarget cameraTarget;//This will be gotten from m_cameraTarget. It's needed, so make sure it has a script with this interface.
 
         [SerializeField]
+        [Tooltip("Movement easing on the focus zone and danger zone.")]
+        private LerpEasing m_movementEasing = LerpEasing.Linear;
+
+        [Header("Debug")]
+        [SerializeField]
         private bool m_showDebug = true;
         [SerializeField]
         private Material m_debugLineMaterial;
@@ -26,10 +31,9 @@ namespace CameraDesign.Controller.Impl
         [Header("Focus Zone")]
         [SerializeField]
         [Range(0.0001f, float.MaxValue)]
-        private float m_focusMovementSpeed = 5f;
+        [Tooltip("The lower this value, the snappier it is.")]
+        private float m_focusMovementSpeed = 10f;
 
-        [SerializeField]
-        private LerpEasing m_movementEasing = LerpEasing.Linear;
 
         [SerializeField]
         [Range(0, 100)]
@@ -63,7 +67,8 @@ namespace CameraDesign.Controller.Impl
         [Header("Danger Zone")]
         [SerializeField]
         [Range(0.0001f, float.MaxValue)]
-        private float m_dangerMovementSpeed = 5f;
+        [Tooltip("The lower this value, the snappier it is.")]
+        private float m_dangerMovementSpeed = 1f;
 
         [SerializeField]
         [Range(0, 100)]
