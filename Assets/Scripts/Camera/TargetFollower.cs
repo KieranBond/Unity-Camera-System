@@ -135,7 +135,11 @@ namespace CameraDesign.Controller.Impl
             height = m_focusBounds.height * 0.5f;
 
             xBounds = CheckBounds(targetPos.x, m_focusBounds.x, width);
-            yBounds = CheckBounds(targetPos.y, m_focusBounds.y, height);
+
+            if (m_target.m_isGrounded)//Only check YBounds (for focus), when the player is already on ground. 
+                yBounds = CheckBounds(targetPos.y, m_focusBounds.y, height);
+            else
+                yBounds = OutOfBounds.In;
 
             Vector2 m_focusBoundsDistance = new Vector2();
 
