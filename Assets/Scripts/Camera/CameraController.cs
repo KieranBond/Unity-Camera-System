@@ -1,4 +1,5 @@
 ﻿using CameraDesign.Controller.API;
+using CameraDesign.Controller.Settings;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,9 @@ namespace CameraDesign.Controller.Impl
         [SerializeField]
         [Range(0.0001f, float.MaxValue)]
         private float m_focusMovementSpeed = 5f;
+
+        [SerializeField]
+        private LerpEasing m_movementEasing = LerpEasing.Linear;
 
         [SerializeField]
         [Range(0, 100)]
@@ -115,7 +119,7 @@ namespace CameraDesign.Controller.Impl
                 if (m_targetFollower == null)
                     m_targetFollower = gameObject.AddComponent<TargetFollower>();
 
-                m_targetFollower.Initialise(cameraTarget, m_camera.transform, m_showDebug);
+                m_targetFollower.Initialise(cameraTarget, m_camera.transform, m_focusMovementSpeed, m_dangerMovementSpeed, m_movementEasing, m_showDebug);
             }
 
             m_screenResolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
@@ -134,7 +138,7 @@ namespace CameraDesign.Controller.Impl
         // Update is called once per frame
         void Update()
         {
-            m_targetFollower.SettingsUpdate(m_focusMovementSpeed, m_dangerMovementSpeed);
+            m_targetFollower.SettingsUpdate(m_focusMovementSpeed, m_dangerMovementSpeed, m_movementEasing);
 
             //  FOCUS ZONE
 

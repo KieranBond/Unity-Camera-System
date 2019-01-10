@@ -1,10 +1,12 @@
 ﻿using CameraDesign.Controller.API;
+using CameraDesign.Controller.Settings;
 using DG.Tweening;
 using System;
 using UnityEngine;
 
 namespace CameraDesign.Controller.Impl
 {
+    [RequireComponent(typeof(CameraController))]
     public class TargetFollower : MonoBehaviour
     {
         private Transform m_camera;
@@ -19,7 +21,6 @@ namespace CameraDesign.Controller.Impl
         [SerializeField]
         private bool m_showAdvancedDebug = false;
 
-        [SerializeField]
         private LerpEasing m_lerpEaseType = LerpEasing.Linear;
 
         private float m_focusMovementSpeed;
@@ -27,25 +28,23 @@ namespace CameraDesign.Controller.Impl
         private float m_currentFocusLerpTime = 0f;
         private float m_currentDangerLerpTime = 0f;
 
-        private Tween m_focusMovementXTween;
-        private Tween m_focusMovementYTween;
-        private Tween m_dangerMovementXTween;
-        private Tween m_dangerMovementYTween;
+        //private Tween m_focusMovementXTween;
+        //private Tween m_focusMovementYTween;
+        //private Tween m_dangerMovementXTween;
+        //private Tween m_dangerMovementYTween;
 
         private Vector2 m_previousUpdateTargetPos;
 
-        private bool m_movingDangerX = false;
-        private bool m_movingDangerY = false;
-        private bool m_movingFocusX = false;
-        private bool m_movingFocusY = false;
 
-        public void Initialise( ICameraTarget a_target, Transform a_camera, bool a_showDebug = false, float a_focusMovementSpeed = 5f )
+        public void Initialise( ICameraTarget a_target, Transform a_camera, float a_focusMovementSpeed = 5f, float a_dangerMovementSpeed = 0.1f, LerpEasing a_lerpEasing = LerpEasing.Linear, bool a_showDebug = false )
         {
             m_target = a_target;
             m_targetTransform = a_target.m_transform;
             m_camera = a_camera;
             m_showDebug = a_showDebug;
             m_focusMovementSpeed = a_focusMovementSpeed;
+            m_dangerMovementSpeed = a_dangerMovementSpeed;
+            m_lerpEaseType = a_lerpEasing;
         }
 
         /// <summary>
@@ -53,10 +52,11 @@ namespace CameraDesign.Controller.Impl
         /// </summary>
         /// <param name="a_focusMovementSpeed">Movement speed for chasing the target outside the focus bounds. Smaller is faster.</param>
         /// <param name="a_dangerMovementSpeed">Movement speed for chasing the target outside the danger bounds. Smaller is faster - recommended below 1.</param>
-        public void SettingsUpdate( float a_focusMovementSpeed = 5f, float a_dangerMovementSpeed = 0.1f )
+        public void SettingsUpdate( float a_focusMovementSpeed, float a_dangerMovementSpeed, LerpEasing a_lerpEasing)
         {
             m_focusMovementSpeed = a_focusMovementSpeed;
             m_dangerMovementSpeed = a_dangerMovementSpeed;
+            m_lerpEaseType = a_lerpEasing;
         }
 
         /// <summary>
@@ -201,17 +201,14 @@ namespace CameraDesign.Controller.Impl
 
             Vector3 updatePos = m_camera.position;
 
-            if(!m_movingDangerX)
+            //if(!m_movingDangerX)
                 updatePos.x += a_distance.x / 32;
 
-            if(!m_movingDangerY)
+            //if(!m_movingDangerY)
                 updatePos.y += a_distance.y / 32;
 
             float t = GetLerpEasing(m_lerpEaseType, m_currentFocusLerpTime, lerpAmount);
             m_camera.position = Vector3.Lerp(m_camera.position, updatePos, t);
-
-
-
 
             //Checking the equivalent danger movement tweens so we don't mess the movement up with two tweens. Danger is prioritised.
             //if(m_dangerMovementXTween == null)
@@ -317,16 +314,6 @@ namespace CameraDesign.Controller.Impl
                 return OutOfBounds.OutNeg;
             else
                 return OutOfBounds.In;
-        }
-
-        private enum LerpEasing
-        {
-            Linear,
-            SmoothStep,
-            SmootherStep,
-            Out,
-            In,
-            InExpo,
         }
 
         private enum OutOfBounds
