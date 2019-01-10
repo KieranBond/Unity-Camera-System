@@ -49,6 +49,10 @@ namespace CameraDesign.Player
             {
                 m_rb.velocity = new Vector2(m_maxXVelocity, m_rb.velocity.y);
             }
+            else if (m_rb.velocity.x < -m_maxXVelocity)
+            {
+                m_rb.velocity = new Vector2(-m_maxXVelocity, m_rb.velocity.y);
+            }
 
             //Do Idle animation
             if(m_isGrounded && m_rb.velocity.x == 0f && m_rb.velocity.y == 0f)
