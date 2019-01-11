@@ -22,8 +22,6 @@ namespace CameraDesign.Controller.Impl
         [Header("Debug")]
         [SerializeField]
         private bool m_showDebug = true;
-        [SerializeField]
-        private Material m_debugLineMaterial;
 
         #endregion
 
@@ -103,12 +101,9 @@ namespace CameraDesign.Controller.Impl
 
         private TargetFollower m_targetFollower;
 
-        private List<GameObject> m_displayLineObjs;
-
         // Start is called before the first frame update
         void Start()
         {
-            m_displayLineObjs = new List<GameObject>();
             m_camera = GetComponent<Camera>();
 
             //Ensures it's not able to do anything until ICameraTarget is on the object.
@@ -227,9 +222,11 @@ namespace CameraDesign.Controller.Impl
 
             float pixelWidth = m_camera.pixelWidth;
             float pixelHeight = m_camera.pixelHeight;
+            //float pixelWidth = m_camera.pixelWidth * (1 - (50) * 0.01f);
+            //float pixelHeight = m_camera.pixelHeight * (1 - (50) * 0.01f);
 
             //Centre line.
-            Gizmos.color = Color.magenta;
+            Gizmos.color = Color.yellow;
             Vector3 centerPoint1 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, 0f, m_camera.nearClipPlane));
             Vector3 centerPoint2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, pixelHeight, m_camera.nearClipPlane));
             Gizmos.DrawLine(centerPoint1, centerPoint2);

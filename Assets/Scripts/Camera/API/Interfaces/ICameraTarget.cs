@@ -8,3 +8,21 @@ namespace CameraDesign.Controller.API
         bool m_isGrounded { get; }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
