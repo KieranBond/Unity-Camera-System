@@ -1,0 +1,8 @@
+Assets used:
+
+https://assetstore.unity.com/packages/2d/characters/the-barbarian-2d-platformer-character-sprite-81903
+
+https://assetstore.unity.com/packages/essentials/post-processing-stack-83912
+
+https://assetstore.unity.com/packages/2d/environments/free-platform-game-assets-85838
+
