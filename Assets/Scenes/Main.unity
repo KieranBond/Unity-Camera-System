@@ -6131,7 +6131,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
@@ -6191,8 +6191,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_cameraTarget: {fileID: 83277801}
-  m_movementEasing: 5
+  m_movementEasing: 2
   m_showDebug: 1
+  m_debugDrawInGameView: 1
   m_focusMovementSpeed: 10
   m_focusWidth: 15
   m_pixelsFocusWidth: 288.00003
@@ -14880,7 +14881,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1460445140
 SpriteRenderer:
   m_ObjectHideFlags: 0

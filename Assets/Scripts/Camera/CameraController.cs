@@ -17,11 +17,13 @@ namespace CameraDesign.Controller.Impl
 
         [SerializeField]
         [Tooltip("Movement easing on the focus zone and danger zone.")]
-        private LerpEasing m_movementEasing = LerpEasing.Linear;
+        public LerpEasing m_movementEasing = LerpEasing.Linear;
 
         [Header("Debug")]
         [SerializeField]
-        private bool m_showDebug = true;
+        public bool m_showDebug = true;
+        [SerializeField]
+        public bool m_debugDrawInGameView = false;
 
         #endregion
 
@@ -30,18 +32,18 @@ namespace CameraDesign.Controller.Impl
         [SerializeField]
         [Range(0.0001f, float.MaxValue)]
         [Tooltip("The lower this value, the snappier it is.")]
-        private float m_focusMovementSpeed = 10f;
+        public float m_focusMovementSpeed = 10f;
 
 
         [SerializeField]
         [Range(0, 100)]
-        private float m_focusWidth = 5f;//Percentage of screen, width of the focus zone.
+        public float m_focusWidth = 5f;//Percentage of screen, width of the focus zone.
         [HideInInspector]
         public float m_pixelsFocusWidth = 0f;
 
         [SerializeField]
         [Range(0, 100)]
-        private float m_focusHeight = 5f;//Percentage of screen, height of the focus zone.
+        public float m_focusHeight = 5f;//Percentage of screen, height of the focus zone.
         [HideInInspector]
         public float m_pixelsFocusHeight = 0f;
 
@@ -50,13 +52,13 @@ namespace CameraDesign.Controller.Impl
         /// </summary>
         [SerializeField]
         [Range(0, 100)]
-        private float m_focusXCentre = 50f;//X Centre. In perecentage. 
+        public float m_focusXCentre = 50f;//X Centre. In perecentage. 
         [HideInInspector]
         public float m_pixelsFocusXCentre = 0f;
 
         [SerializeField]
         [Range(0, 100)]
-        private float m_focusYCentre = 50f;//Y Centre. In Percentage.
+        public float m_focusYCentre = 50f;//Y Centre. In Percentage.
         [HideInInspector]
         public float m_pixelsFocusYCentre = 0f;
         #endregion
@@ -66,17 +68,17 @@ namespace CameraDesign.Controller.Impl
         [SerializeField]
         [Range(0.0001f, float.MaxValue)]
         [Tooltip("The lower this value, the snappier it is.")]
-        private float m_dangerMovementSpeed = 1f;
+        public float m_dangerMovementSpeed = 1f;
 
         [SerializeField]
         [Range(0, 100)]
-        private float m_dangerWidth = 5f;//Percentage of screen, width of the danger zone.
+        public float m_dangerWidth = 5f;//Percentage of screen, width of the danger zone.
         [HideInInspector]
         public float m_pixelsDangerWidth = 0f;
 
         [SerializeField]
         [Range(0, 100)]
-        private float m_dangerHeight = 5f;//Percentage of screen, height of the danger zone.
+        public float m_dangerHeight = 5f;//Percentage of screen, height of the danger zone.
         [HideInInspector]
         public float m_pixelsDangerHeight = 0f;
 
@@ -85,21 +87,24 @@ namespace CameraDesign.Controller.Impl
         /// </summary>
         [SerializeField]
         [Range(0, 100)]
-        private float m_dangerXCentre = 50f;//X Centre. In perecentage. 
+        public float m_dangerXCentre = 50f;//X Centre. In perecentage. 
         [HideInInspector]
         public float m_pixelsDangerXCentre = 0f;
 
         [SerializeField]
         [Range(0, 100)]
-        private float m_dangerYCentre = 50f;//Y Centre. In Percentage.
+        public float m_dangerYCentre = 50f;//Y Centre. In Percentage.
         [HideInInspector]
         public float m_pixelsDangerYCentre = 0f;
         #endregion
 
-        private Vector2 m_screenResolution;
-        private Camera m_camera;
+        [HideInInspector]
+        public Vector2 m_screenResolution { get; private set; }
+        [HideInInspector]
+        public Camera m_camera { get; private set; }
 
-        private TargetFollower m_targetFollower;
+        [HideInInspector]
+        public TargetFollower m_targetFollower { get; private set; }
 
         // Start is called before the first frame update
         void Start()
@@ -127,9 +132,11 @@ namespace CameraDesign.Controller.Impl
             m_pixelsFocusXCentre = m_camera.pixelWidth * (1 - ((100 - m_focusXCentre) - (m_focusWidth * 0.5f)) * 0.01f);
             m_pixelsFocusYCentre = m_camera.pixelHeight * (1 - (100 - m_focusYCentre) * 0.01f);
             m_pixelsFocusWidth = m_camera.pixelWidth * (1 - (100 - m_focusWidth) * 0.01f);
+            m_pixelsFocusHeight = m_camera.pixelHeight * (1 - (100 - m_focusHeight) * 0.01f);
 
             m_pixelsDangerXCentre = m_camera.pixelWidth * (1 - ((100 - m_dangerXCentre) - (m_dangerWidth * 0.5f)) * 0.01f);
             m_pixelsDangerYCentre = m_camera.pixelHeight * (1 - (100 - m_dangerYCentre) * 0.01f);
+            m_pixelsDangerHeight = m_camera.pixelHeight * (1 - (100 - m_dangerHeight) * 0.01f);
             m_pixelsDangerWidth = m_camera.pixelWidth * (1 - (100 - m_dangerWidth) * 0.01f);
 
         }
@@ -222,60 +229,61 @@ namespace CameraDesign.Controller.Impl
 
             float pixelWidth = m_camera.pixelWidth;
             float pixelHeight = m_camera.pixelHeight;
-            //float pixelWidth = m_camera.pixelWidth * (1 - (50) * 0.01f);
-            //float pixelHeight = m_camera.pixelHeight * (1 - (50) * 0.01f);
 
-            //Centre line.
-            Gizmos.color = Color.yellow;
-            Vector3 centerPoint1 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, 0f, m_camera.nearClipPlane));
-            Vector3 centerPoint2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, pixelHeight, m_camera.nearClipPlane));
-            Gizmos.DrawLine(centerPoint1, centerPoint2);
+            if (m_debugDrawInGameView)
+            {
+                //Centre line.
+                Gizmos.color = Color.yellow;
+                Vector3 centerPoint1 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, 0f, m_camera.nearClipPlane));
+                Vector3 centerPoint2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth * 0.5f, pixelHeight, m_camera.nearClipPlane));
+                Gizmos.DrawLine(centerPoint1, centerPoint2);
 
-            Gizmos.color = Color.green;
+                Gizmos.color = Color.green;
 
-            //  FOCUS ZONE
-            //Left most line of focus zone.
-            Vector3 x1 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - focusWidthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 x2 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - focusWidthHalved, pixelHeight, m_camera.nearClipPlane));
-            Gizmos.DrawLine(x1, x2);
+                //  FOCUS ZONE
+                //Left most line of focus zone.
+                Vector3 x1 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - focusWidthHalved, 0f, m_camera.nearClipPlane));
+                Vector3 x2 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre - focusWidthHalved, pixelHeight, m_camera.nearClipPlane));
+                Gizmos.DrawLine(x1, x2);
 
-            //Right most line of focus zone.
-            Vector3 x3 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + focusWidthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 x4 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + focusWidthHalved, pixelHeight, m_camera.nearClipPlane));
-            Gizmos.DrawLine(x3, x4);
+                //Right most line of focus zone.
+                Vector3 x3 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + focusWidthHalved, 0f, m_camera.nearClipPlane));
+                Vector3 x4 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsFocusXCentre + focusWidthHalved, pixelHeight, m_camera.nearClipPlane));
+                Gizmos.DrawLine(x3, x4);
 
-            //Bottom line of focus zone.
-            Vector3 y1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre - focusHeightHalved, m_camera.nearClipPlane));
-            Vector3 y2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsFocusYCentre - focusHeightHalved, m_camera.nearClipPlane));
-            Gizmos.DrawLine(y1, y2);
-            
-            //Top line of focus zone.
-            Vector3 y3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre + focusHeightHalved, m_camera.nearClipPlane));
-            Vector3 y4 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsFocusYCentre + focusHeightHalved, m_camera.nearClipPlane));
-            Gizmos.DrawLine(y3, y4);
+                //Bottom line of focus zone.
+                Vector3 y1 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre - focusHeightHalved, m_camera.nearClipPlane));
+                Vector3 y2 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsFocusYCentre - focusHeightHalved, m_camera.nearClipPlane));
+                Gizmos.DrawLine(y1, y2);
+
+                //Top line of focus zone.
+                Vector3 y3 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsFocusYCentre + focusHeightHalved, m_camera.nearClipPlane));
+                Vector3 y4 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsFocusYCentre + focusHeightHalved, m_camera.nearClipPlane));
+                Gizmos.DrawLine(y3, y4);
 
 
-            //  DANGER ZONE
-            //Left most line of focus zone.
-            Gizmos.color = Color.red;
-            Vector3 x11 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre - dangerWidthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 x22 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre - dangerWidthHalved, pixelHeight, m_camera.nearClipPlane));
-            Gizmos.DrawLine(x11, x22);
+                //  DANGER ZONE
+                //Left most line of focus zone.
+                Gizmos.color = Color.red;
+                Vector3 x11 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre - dangerWidthHalved, 0f, m_camera.nearClipPlane));
+                Vector3 x22 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre - dangerWidthHalved, pixelHeight, m_camera.nearClipPlane));
+                Gizmos.DrawLine(x11, x22);
 
-            //Right most line of focus zone.
-            Vector3 x33 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre + dangerWidthHalved, 0f, m_camera.nearClipPlane));
-            Vector3 x44 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre + dangerWidthHalved, pixelHeight, m_camera.nearClipPlane));
-            Gizmos.DrawLine(x33, x44);
+                //Right most line of focus zone.
+                Vector3 x33 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre + dangerWidthHalved, 0f, m_camera.nearClipPlane));
+                Vector3 x44 = m_camera.ScreenToWorldPoint(new Vector3(m_pixelsDangerXCentre + dangerWidthHalved, pixelHeight, m_camera.nearClipPlane));
+                Gizmos.DrawLine(x33, x44);
 
-            //Bottom line of focus zone.
-            Vector3 y11 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsDangerYCentre - dangerHeightHalved, m_camera.nearClipPlane));
-            Vector3 y22 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsDangerYCentre - dangerHeightHalved, m_camera.nearClipPlane));
-            Gizmos.DrawLine(y11, y22);
+                //Bottom line of focus zone.
+                Vector3 y11 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsDangerYCentre - dangerHeightHalved, m_camera.nearClipPlane));
+                Vector3 y22 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsDangerYCentre - dangerHeightHalved, m_camera.nearClipPlane));
+                Gizmos.DrawLine(y11, y22);
 
-            //Top line of focus zone.
-            Vector3 y33 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsDangerYCentre + dangerHeightHalved, m_camera.nearClipPlane));
-            Vector3 y44 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsDangerYCentre + dangerHeightHalved, m_camera.nearClipPlane));
-            Gizmos.DrawLine(y33, y44);
+                //Top line of focus zone.
+                Vector3 y33 = m_camera.ScreenToWorldPoint(new Vector3(0f, m_pixelsDangerYCentre + dangerHeightHalved, m_camera.nearClipPlane));
+                Vector3 y44 = m_camera.ScreenToWorldPoint(new Vector3(pixelWidth, m_pixelsDangerYCentre + dangerHeightHalved, m_camera.nearClipPlane));
+                Gizmos.DrawLine(y33, y44);
+            }
         }
     }
 }
